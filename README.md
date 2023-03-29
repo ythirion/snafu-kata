@@ -120,3 +120,6 @@ toSnafu(greaterThanMaxValueLong) == left(ParsingError)
 for all (greaterThanMaxValueString)
 toSnafu(greaterThanMaxValueString) == left(ParsingError)
 ```
+
+### "Solution"
+A proposal of solution is available in `C#` with `FsCheck` and `LanguageExt` in the `solution` folder.
