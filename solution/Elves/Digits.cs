@@ -16,10 +16,10 @@ namespace Elves
                 .Map((index, x) => (long) (Math.Pow(5.0, index) * x))
                 .Sum();
 
-        public static Option<Digits> From(params char[] chars)
-            => ContainsOnlyValidCharacters(chars.ToSeq())
+        public static Option<Digits> From(string chars)
+            => !chars.IsNull() && ContainsOnlyValidCharacters(chars.ToCharArray().ToSeq())
                 ? new Digits(
-                    chars.Bind(c => c.ToDigit())
+                    chars.ToCharArray().Bind(c => c.ToDigit())
                         .ToSeq()
                 )
                 : Option<Digits>.None;

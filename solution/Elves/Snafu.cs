@@ -5,19 +5,28 @@ namespace Elves
     public readonly struct Snafu : IComparable<Snafu>, IEquatable<Snafu>, IComparable
     {
         public const long MaxValue = 76293945312L;
+        private const long MaxLength = 16;
 
         private readonly Digits _digits;
 
         private Snafu(Digits digits) => _digits = digits;
 
         public static Either<ParsingError, Snafu> Parse(string potentialSnafu)
-            => Digits.From(potentialSnafu.ToArray())
-                .Filter(digits => digits.ToNumber() > 0 && digits.ToNumber() <= MaxValue)
+            => ValidateLength(potentialSnafu)
+                .Bind(Digits.From)
+                .Filter(IsDigitsInRange)
                 .Map(digits => new Snafu(digits))
                 .ToEither(new ParsingError($"Invalid snafu: {potentialSnafu}"));
 
-        public override string ToString() => _digits.ToString();
+        private static Option<string> ValidateLength(string potentialSnafu)
+            => !string.IsNullOrEmpty(potentialSnafu) && potentialSnafu.Length <= MaxLength
+                ? potentialSnafu
+                : Option<string>.None;
 
+        private static bool IsDigitsInRange(Digits digits)
+            => digits.ToNumber() > 0 && digits.ToNumber() <= MaxValue;
+
+        public override string ToString() => _digits.ToString();
         public override int GetHashCode() => _digits.GetHashCode();
         public int CompareTo(Snafu other) => _digits.CompareTo(other._digits);
 

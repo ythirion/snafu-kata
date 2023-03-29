@@ -7,15 +7,15 @@ namespace Elves.Tests
 {
     public class SnafuProperties
     {
-        private static readonly Arbitrary<Digits> _digitsGenerator =
+        private static Arbitrary<Digits> _digitsGenerator(int minNumberOfDigits = 1, int maxNumberOfDigits = 16) =>
         (
-            from numberOfDigits in Gen.Choose(1, 16)
+            from numberOfDigits in Gen.Choose(minNumberOfDigits, maxNumberOfDigits)
             from digits in Gen.ListOf(numberOfDigits, Arb.Generate<Digit>())
             select Digits.From(digits.ToArray()).ValueUnsafe()
         ).ToArbitrary();
 
         private static readonly Arbitrary<Digits> _validDigitsForSnafuGenerator =
-            _digitsGenerator.Filter(digits => digits.ToNumber() > 0);
+            _digitsGenerator().Filter(digits => digits.ToNumber() > 0);
 
         [Property]
         public Property RoundTrippingToString() =>
@@ -24,12 +24,26 @@ namespace Elves.Tests
                     .Is(digits)
             );
 
-        private static readonly Arbitrary<Digits> _invalidDigitsForSnafuGenerator =
-            _digitsGenerator.Filter(digits => digits.ToNumber() <= 0);
+        private static readonly Arbitrary<Digits> _negativeDigitsForSnafuGenerator =
+            _digitsGenerator().Filter(digits => digits.ToNumber() <= 0);
 
         [Property]
         public Property InvalidSnafuAreNotSnafu() =>
-            Prop.ForAll(_invalidDigitsForSnafuGenerator,
+            Prop.ForAll(_negativeDigitsForSnafuGenerator,
+                digits => Snafu.Parse(digits.ToString())
+                    .IsLeft
+            );
+
+        [Property]
+        public Property InvalidStringAreNotSnafu(string invalidSnafu) =>
+            Snafu.Parse(invalidSnafu).IsLeft.ToProperty();
+
+        private static readonly Arbitrary<Digits> _greaterThanMaxSnafuStringGenerator =
+            _digitsGenerator(17, 20);
+
+        [Property]
+        public Property GreaterThanMaxSnafuStringAreNotSnafu() =>
+            Prop.ForAll(_greaterThanMaxSnafuStringGenerator,
                 digits => Snafu.Parse(digits.ToString())
                     .IsLeft
             );
