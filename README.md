@@ -1,7 +1,7 @@
 # Snafu Kata
 Solves AOC 2022 with `Type-Driven Development` and `Property-Based Testing`
 
-![Snafu kata](img/snafu-kata.png)
+![Snafu kata](img/snafu-kata.webp)
 
 ## Original exercise
 This kata comes from the [`advent of code` 2022](https://adventofcode.com/2022/day/25).
